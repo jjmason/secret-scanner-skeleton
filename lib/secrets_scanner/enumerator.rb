@@ -12,12 +12,18 @@ module SecretsScanner
       @config ||= SecretsScanner.config
     end
 
-    # so this class is both enumerable (that is, it supports operations like map, select, and so on)
-    # typically you'll want to call it's :lazy method and operate on that, or each it instead of building
-    # an array.  This way you can apply a chain of filters or transformations to the object without multiple
-    # trips or building an in memory array.
     def each
-      raise NotImplementedError
+      return enum_for(__method__) unless block_given?
+      each_file do |file|
+        yield file
+      end
+      self # hide the result returned from #each_file so we don't have to put any
+           # particular constraints on it's return value.
+    end
+
+    protected
+    def each_file
+      raise NotImplementedError, "Subclasses of #{self.class.name} must implement #each_file"
     end
   end
 end
